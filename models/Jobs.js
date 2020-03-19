@@ -2,8 +2,6 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 
-const WorkerSchema = mongoose.Schema
-
 const WorkerSchema = Schema({
     worker: schema.Types.UserSchema,
     rate: Number

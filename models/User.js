@@ -35,6 +35,6 @@ const UserSchema = Schema({
     displayName: { type: String},
     profile : { type: ProfileSchema },
     terms: {type: Boolean, optional: false}
-})
+}, { collection: 'users'})
 
 module.exports = mongoose.model('UserModel', UserSchema)

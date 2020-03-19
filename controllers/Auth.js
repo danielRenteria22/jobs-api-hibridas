@@ -11,10 +11,12 @@ const bcrypt = require('bcryptjs')
 const sha256 = require('sha256')
 
 function logInUser(req, res){
+    console.info("body from request", req.body)
     const email = req.body.email
     const pass = req.body.password
     let passwordIsValid  = false
-    User.findOne({email: email}).then((user)=>{
+    User.findOne({'profile.email': email}).then((user)=>{
+        console.log(user)
         if(!user) return res.status(404).send('No user found')
         //let passwordIsValid = bcrypt.compareSync(req.pass,user.profile.password)
         if(pass === user.profile.password) passwordIsValid = true
@@ -22,7 +24,7 @@ function logInUser(req, res){
         if(!passwordIsValid) return res.status(401).send({auth: false, message: 'Password is not valid'})
         let token = jwt.sign({email: user.profile.email}, process.env.JWT_SECRET, { expiresIn: 864000}  //expires in 24 hours
         )
-        res.status(200).send({auth: true, token: token, name: user.username, email:user.email});
+        res.status(200).send({auth: true, token: token, name: user.profile.username, email:user.profile.email});
     })
 }
 
