@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env JWT_SECRET=jobsnewloginuser nodemon index.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "sha256": "^0.2.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.2",
     "nodemon": "^2.0.2"
   }
 }
