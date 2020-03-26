@@ -54,7 +54,7 @@ function logOutUser(){
 }
 
 function signUpUser(req, res) {
-
+    console.info("Body from request", req.body)
     const user = new User({
         displayName: req.body.username,
         profile: {
@@ -71,8 +71,9 @@ function signUpUser(req, res) {
             degree:  req.body.degree,
             roles:  req.body.roles
         }
-        
     })
+
+    console.log(user)
 
     user.save((err) => {
         let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {
