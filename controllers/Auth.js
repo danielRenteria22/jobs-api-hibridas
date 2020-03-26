@@ -75,6 +75,8 @@ function signUpUser(req, res) {
 
     console.log(user)
 
+    console.log("user.save")
+
     user.save((err) => {
         let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {
             expiresIn: 864000 // expires in 24 hours
