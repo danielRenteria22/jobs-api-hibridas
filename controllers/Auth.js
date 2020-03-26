@@ -2,13 +2,29 @@ module.exports = {
     logInUser,
     logOutUser,
     getCurrentUser,
-    signUpUser
+    signUpUser,
+    uploadProfilePhoto,
+    uploadToS3
 }
 
 let User = require('../models/User')
+const AWS = require('aws-sdk')
+const fs = require('fs')
+//bucket-example-1
+const s3 = new AWS.S3({
+    region:"us-west-2",
+    accessKeyId: "AKIAIORTFZTCPJDTKATA",
+    secretAccessKey: "QslF5yYmrLsfLpqHV1PzDEQj9cq/0eT8HslZ3EUH"
+})
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const sha256 = require('sha256')
+const cloudinary = require('cloudinary').v2
+cloudinary.config({
+    cloud_name:'ravenegg',
+    api_key: '173273979277351',
+    api_secret: 'zGjYH6vwUSalJPm2sgSevqUMNaM'
+})
 
 function logInUser(req, res){
     console.info("body from request", req.body)
@@ -84,3 +100,30 @@ function signUpUser(req, res) {
     })
 }
 
+function uploadProfilePhoto(req, res){
+    const path = req.files.file.path
+    console.log(req.files)
+    const uniqueFilename = new Date().toISOString()
+    cloudinary.uploader.upload(path, { public_id: `blog/${uniqueFilename}`, tags: `blog` }).then((res)=>{
+        return res.status(200).send({ cloudinary: res})
+    })
+}
+
+function uploadToS3(req,res){
+    const path = req.files.file.path
+    fs.readFile(path, (err, data)=>{
+        if(err) { throw err }
+        const params = {
+            Body: data,
+            Bucket: "bucket-example-1",
+            ACL: 'public-read',
+            Key: 'default-' + Math.random()
+        }
+
+        s3.putObject(params).promise().then((data)=>{
+            res.status(200).send({s3Data: data})
+        }).catch(
+            (err)=> res.status(500).send({message: `Error on request ${err}`}
+        ))
+    })
+}
