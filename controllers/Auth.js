@@ -13,13 +13,14 @@ const fs = require('fs')
 //bucket-example-1
 const s3 = new AWS.S3({
     region:"us-west-2",
-    accessKeyId: "AKIAIORTFZTCPJDTKATA",
-    secretAccessKey: "QslF5yYmrLsfLpqHV1PzDEQj9cq/0eT8HslZ3EUH"
+    accessKeyId: "AKIAJ7CTHS7E7TEPF64Q",
+    secretAccessKey: "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"
 })
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const sha256 = require('sha256')
 const cloudinary = require('cloudinary').v2
+Random = require('meteor-random')
 cloudinary.config({
     cloud_name:'ravenegg',
     api_key: '173273979277351',
@@ -102,26 +103,36 @@ function signUpUser(req, res) {
 
 function uploadProfilePhoto(req, res){
     const path = req.files.file.path
-    console.log(req.files)
     const uniqueFilename = new Date().toISOString()
-    cloudinary.uploader.upload(path, { public_id: `blog/${uniqueFilename}`, tags: `blog` }).then((res)=>{
-        return res.status(200).send({ cloudinary: res})
-    })
+    const cloudinary = require('cloudinary').v2;
+    cloudinary.uploader.upload(path, { public_id: `data/${uniqueFilename}`, tags: `blog` }, (err, result)=> { 
+        if (err) return res.send(err)
+        res.status(200).send({message: "upload image success", imageData: result})
+    });
 }
 
 function uploadToS3(req,res){
     const path = req.files.file.path
+    const file = req.files.file
+    let key = ""
+    if(file.type==='image/png'){
+        key = Random.id() + ".png"
+    } else if(file.type==='image/jpg'){
+        key = Random.id() + ".jpg"
+    } else if(file.type==='image/jpeg'){
+        key = Random.id() + ".jpeg"
+    }
     fs.readFile(path, (err, data)=>{
         if(err) { throw err }
         const params = {
             Body: data,
             Bucket: "bucket-example-1",
             ACL: 'public-read',
-            Key: 'default-' + Math.random()
+            Key: key
         }
-
+        const url = "https://bucket-example-1.s3-us-west-2.amazonaws.com/"
         s3.putObject(params).promise().then((data)=>{
-            res.status(200).send({s3Data: data})
+            res.status(200).send({s3Data: data, url: `${url}${key}`})
         }).catch(
             (err)=> res.status(500).send({message: `Error on request ${err}`}
         ))
