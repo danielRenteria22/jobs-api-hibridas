@@ -103,10 +103,11 @@ function signUpUser(req, res) {
 
 function uploadProfilePhoto(req, res){
     const path = req.files.file.path
-    const uniqueFilename = new Date().toISOString()
+    const uniqueFilename = Random.id()
     const cloudinary = require('cloudinary').v2;
     cloudinary.uploader.upload(path, { public_id: `data/${uniqueFilename}`, tags: `blog` }, (err, result)=> { 
         if (err) return res.send(err)
+        fs.unlinkSync(path)
         res.status(200).send({message: "upload image success", imageData: result})
     });
 }
@@ -132,6 +133,7 @@ function uploadToS3(req,res){
         }
         const url = "https://bucket-example-1.s3-us-west-2.amazonaws.com/"
         s3.putObject(params).promise().then((data)=>{
+            fs.unlinkSync(path)
             res.status(200).send({s3Data: data, url: `${url}${key}`})
         }).catch(
             (err)=> res.status(500).send({message: `Error on request ${err}`}
