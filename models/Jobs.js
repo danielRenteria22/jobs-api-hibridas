@@ -3,12 +3,12 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const WorkerSchema = Schema({
-    worker: schema.Types.UserSchema,
+    _id: String,
     rate: Number
 })
 
 const EmployerSchema = Schema({
-    worker: schema.Types.UserSchema,
+    _id: String,
     rate: Number
 })
 

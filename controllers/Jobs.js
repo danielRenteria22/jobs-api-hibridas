@@ -5,7 +5,7 @@ module.exports = {
     updateJob,
     deleteJob,
     getJobsByPage,
-    uploadProfilePhoto
+    uploadJobPhoto
 }
 
 const JobsSub = require('../models/Jobs')
@@ -52,6 +52,7 @@ function getOneJob(req, res){
 }
 
 function createJob(req, res){
+    console.log("Body", req.body)
     let job = new JobsSub(req.body)
 
     job.save((err, jobStored)=>{
@@ -80,6 +81,6 @@ function deleteJob(req, res){
     })
 }
 
-function uploadProfilePhoto(req, res){
+function uploadJobPhoto(req, res){
 
 }
