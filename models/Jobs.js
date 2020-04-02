@@ -18,6 +18,9 @@ const PointSchema = Schema({
 })
 
 const JobsSchema = Schema({
+    _id:{
+        type:String
+    },
     name: { type: String },
     publishDate: { type: String },
     startedDate: { type: String },
@@ -28,7 +31,7 @@ const JobsSchema = Schema({
     description: { type: String },
     employer: { type: [EmployerSchema]},
     amountPayment: { type: Number },
-    description_img: { type: String },
+    description_img: { type: [String] },
     category: { type: String },
     point: { type: PointSchema },
     maxWorkers: { type: Number },

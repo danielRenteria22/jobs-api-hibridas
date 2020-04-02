@@ -9,13 +9,21 @@ module.exports = {
 }
 
 const JobsSub = require('../models/Jobs')
+const fs = require('fs')
+const cloudinary = require('cloudinary').v2
+Random = require('meteor-random')
+cloudinary.config({
+    cloud_name:'ravenegg',
+    api_key: '173273979277351',
+    api_secret: 'zGjYH6vwUSalJPm2sgSevqUMNaM'
+})
 
 function getAllJobs(req, res){
     JobsSub.find({}, (err, concepts)=>{
         if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
         if(!concepts) return res.status(404).send({message: `Jobs does not exists`})
 
-        res.status(200).send({message: 'Request successful', jobs: concepts})
+        res.status(200).send({message: 'Request successful',totalJobs: concepts.length, jobs: concepts})
     })
 }
 
@@ -36,8 +44,17 @@ function getJobsByPage(req, res){
 
     JobsSub.find(query).skip((page-1)* perPage).limit(perPage).sort({
         publishDate: -1
-    }).exec().then((concepts)=>{
-        
+    }).exec()
+    .then((concepts)=>{
+        res.set('X-limit', perPage)
+        res.set('X-page', page)
+        jobConcepts = concepts
+        return JobsSub.count()
+    }).then((total)=>{
+        res.set('X-total', total)
+        res.status(200).send({total: total, reqJobs: jobConcepts.length, jobs: jobConcepts})
+    }).catch((err)=>{
+        res.status(500).send({ message: `Error in the request ${err}` })
     })
 }
 
@@ -52,8 +69,11 @@ function getOneJob(req, res){
 }
 
 function createJob(req, res){
-    console.log("Body", req.body)
-    let job = new JobsSub(req.body)
+    const j = {
+        _id: Random.id(),
+        ...req.body
+    }
+    let job = new JobsSub(j)
 
     job.save((err, jobStored)=>{
         if(err) return res.status(400).send({message: `Error on model ${err}`})
@@ -77,10 +97,41 @@ function deleteJob(req, res){
 
     JobsSub.remove({_id: jobID}, (err, concept)=>{
         if (err) return res.status(500).send({ message: `Error in the request ${err}` })
-        res.status(200).send({message: `Remove Completed`})
+        res.status(200).send({message: `Remove Completed`, job: concept})
     })
 }
 
-function uploadJobPhoto(req, res){
+function updateDescImages(id, update){
+    const jobID = id
+    const imgs = update
 
+    JobsSub.findOneAndUpdate(jobID, 
+        {"$push": {"description_img": imgs}}, 
+        {"new": false, "upsert":false}, 
+        (err, conceptUpdated)=>{
+            if(err) res.status(500).send({message: `Error in request ${err}`})
+            console.log("jobRequest", conceptUpdated);
+            res.status(200).send({message: `Update Completed`, job: conceptUpdated})
+        })
+}
+
+function uploadJobPhoto(req, res){
+    const path = req.files.file.path
+    const jobID = req.body._id
+    const uniqueFilename = Random.id()
+    const cloudinary = require('cloudinary').v2;
+    cloudinary.uploader.upload(path, { public_id: `jobs/${uniqueFilename}`, tags: `jobs` }, (err, result)=> { 
+        if (err) return res.send(err)
+        fs.unlinkSync(path)
+        console.log("Cloudinary result", result)
+        //       "url": "http://res.cloudinary.com/ravenegg/image/upload/v1585857527/jobs/38Mr7jtkz6HCWn5kk.gif",
+        let routeImg = result.url
+        let arrayRoute = routeImg.split("/")
+        let finalUrl = arrayRoute[6] + "/"  + arrayRoute[7] + "/" + arrayRoute[8]
+
+        console.log("Final Url", finalUrl)
+        //updateDescImages(jobID, result.path)
+
+        res.status(200).send({message: "upload image success", imageData: result})
+    });
 }

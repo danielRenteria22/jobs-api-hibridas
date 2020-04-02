@@ -8,7 +8,7 @@ router.use(multipart({
 
 let JobsController = require('../controllers/Jobs');
 
-router.post('/getalljobs', JobsController.getAllJobs)
+router.get('/getalljobs', JobsController.getAllJobs)
 
 router.post('/getjob', JobsController.getOneJob)
 
