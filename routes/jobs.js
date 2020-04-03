@@ -14,7 +14,7 @@ router.post('/getjob', JobsController.getOneJob)
 
 router.post('/addjob', JobsController.createJob)
 
-router.post('/updatejob', JobsController.updateJob)
+router.patch('/updatejob', JobsController.updateJob)
 
 router.post('/deletejob', JobsController.deleteJob)
 
