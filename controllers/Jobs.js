@@ -104,25 +104,27 @@ function deleteJob(req, res){
 function updateDescImages(id, update){
     const jobID = id
     const imgs = update
+    console.log("id", jobID)
+    console.log("update", imgs)
 
-    JobsSub.findOneAndUpdate(jobID, 
+    JobsSub.findOneAndUpdate({_id: jobID}, 
         {"$push": {"description_img": imgs}}, 
-        {"new": false, "upsert":false}, 
+        {"new": true, "upsert":true}, 
         (err, conceptUpdated)=>{
             if(err) res.status(500).send({message: `Error in request ${err}`})
             console.log("jobRequest", conceptUpdated);
-            res.status(200).send({message: `Update Completed`, job: conceptUpdated})
+            /*res.status(200).send({message: `Update Completed`, job: conceptUpdated})*/
         })
 }
 
 function uploadJobPhoto(req, res){
     const path = req.files.file.path
     const jobID = req.body._id
+    console.log(jobID)
     const uniqueFilename = Random.id()
     const cloudinary = require('cloudinary').v2;
     cloudinary.uploader.upload(path, { public_id: `jobs/${uniqueFilename}`, tags: `jobs` }, (err, result)=> { 
         if (err) return res.send(err)
-        fs.unlinkSync(path)
         console.log("Cloudinary result", result)
         // "url": "http://res.cloudinary.com/ravenegg/image/upload/v1585857527/jobs/38Mr7jtkz6HCWn5kk.gif",
         //Cesar String change
@@ -143,7 +145,7 @@ function uploadJobPhoto(req, res){
         //console.log("Final Url", finalUrl)
         //updateDescImages(jobID, result.path)
         updateDescImages(jobID, finalString)
-
+        fs.unlinkSync(path)
         res.status(200).send({message: "upload image success", imageData: result})
     });
 }
