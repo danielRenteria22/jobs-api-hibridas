@@ -125,9 +125,15 @@ function uploadJobPhoto(req, res){
         fs.unlinkSync(path)
         console.log("Cloudinary result", result)
         //       "url": "http://res.cloudinary.com/ravenegg/image/upload/v1585857527/jobs/38Mr7jtkz6HCWn5kk.gif",
-        let routeImg = result.url
+        //Cesar String change
+        /*let routeImg = result.url
         let arrayRoute = routeImg.split("/")
-        let finalUrl = arrayRoute[6] + "/"  + arrayRoute[7] + "/" + arrayRoute[8]
+        let finalUrl = arrayRoute[6] + "/"  + arrayRoute[7] + "/" + arrayRoute[8]*/
+
+        //Francisco string change
+
+        //Amed String Change
+
 
         console.log("Final Url", finalUrl)
         //updateDescImages(jobID, result.path)
