@@ -5,7 +5,12 @@ module.exports = {
     updateJob,
     deleteJob,
     getJobsByPage,
-    uploadJobPhoto
+    uploadJobPhoto,
+    nearMe,
+    acceptJob,
+    activeJobs,
+    terminatedJobs,
+    terminateJobs
 }
 
 const JobsSub = require('../models/Jobs')
@@ -152,4 +157,79 @@ function uploadJobPhoto(req, res){
         fs.unlinkSync(path)
         res.status(200).send({message: "upload image success", imageData: result})
     });
+}
+
+function nearMe(req,res){
+    const lat = req.body.lat
+    const long = req.body.long
+    const offset = 0.2
+    const query = {
+        "point.lat": {$gte: lat - offset,$lte: lat + offset},
+        "point.lng": {$gte: long - offset,$lte: long + offset}
+    }
+    JobsSub.find(query, (err, concepts)=>{
+        if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
+        if(!concepts) return res.status(404).send({message: `Jobs does not exists`})
+
+        res.status(200).send({message: 'Request successful',totalJobs: concepts.length, jobs: concepts})
+    })
+}
+
+function acceptJob(req,res){
+    const userId = req.body.userId
+    const jobId = req.body.jobId
+    JobsSub.findById(jobId, (err, concept)=>{
+        if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
+        if(!concept) return res.status(404).send({message: `Job not exist`})
+
+        concept.workers.push(userId)
+        concept.save()
+        res.status(200).send({message: 'Request successful', job: concept})
+    })
+}
+
+function activeJobs(req,res){
+    const userId = req.body.userId
+    const query = {
+        "workers": {
+            $elemMatch: { _id: userId } 
+        },
+        "done": false
+    }
+    JobsSub.find(query, (err, concept)=>{
+        if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
+        if(!concept) return res.status(404).send({message: `Job not exist`})
+
+        
+        res.status(200).send({message: 'Request successful', job: concept})
+    })
+}
+
+function terminatedJobs(req,res){
+    const userId = req.body.userId
+    const query = {
+        "workers": {
+            $elemMatch: { _id: userId } 
+        },
+        "done": true
+    }
+    JobsSub.find(query, (err, concept)=>{
+        if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
+        if(!concept) return res.status(404).send({message: `Job not exist`})
+
+        
+        res.status(200).send({message: 'Request successful', job: concept})
+    })
+}
+
+function terminateJobs(req,res){
+    let  jobID = req.body.jobId
+    JobsSub.findById(jobID, (err, concept)=>{
+        if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
+        if(!concept) return res.status(404).send({message: `Job not exist`})
+
+        concept.done = true
+        concept.save()
+        res.status(200).send({message: 'Request successful', job: concept})
+    })
 }
