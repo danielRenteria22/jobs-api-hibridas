@@ -27,7 +27,7 @@ const ProfileSchema = Schema({
     maritalStatus: {  type: String, optional:true }, //TODO agregar arreglo de status
     profileImg: { type: String, optional:true },
     degree: { type: String, optional:true },
-    roles: { type:[String], allowedValues: ['admin', 'developer', 'manager'] },
+    roles: { type:String },
     requiredDocuments: { type: DocumentsSchema}
 })
 

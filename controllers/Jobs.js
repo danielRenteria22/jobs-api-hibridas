@@ -28,7 +28,7 @@ function getAllJobs(req, res){
         if(err) return res.status(500).send({message: `Problem with the searching request ${err}`})
         if(!concepts) return res.status(404).send({message: `Jobs does not exists`})
 
-        res.status(200).send({message: 'Request successful',totalJobs: concepts.length, jobs: concepts})
+        res.status(200).send({message: 'Request successful', totalJobs: concepts.length, jobs: concepts})
     })
 }
 
@@ -201,7 +201,7 @@ function activeJobs(req,res){
         if(!concept) return res.status(404).send({message: `Job not exist`})
 
         
-        res.status(200).send({message: 'Request successful', job: concept})
+        res.status(200).send({message: 'Request successful', jobs: concept})
     })
 }
 
@@ -218,7 +218,7 @@ function terminatedJobs(req,res){
         if(!concept) return res.status(404).send({message: `Job not exist`})
 
         
-        res.status(200).send({message: 'Request successful', job: concept})
+        res.status(200).send({message: 'Request successful', jobs: concept})
     })
 }
 

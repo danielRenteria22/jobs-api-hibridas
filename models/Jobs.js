@@ -31,11 +31,13 @@ const JobsSchema = Schema({
     description: { type: String },
     employer: { type: [EmployerSchema]},
     amountPayment: { type: Number },
-    description_img: { type: [String] },
+    description_img: { type: String },
     category: { type: String },
     point: { type: PointSchema },
     maxWorkers: { type: Number },
-    done: { type: Boolean }
-})
+    done: { type: Boolean },
+},
+{    versionKey: false}
+)
 
 module.exports = mongoose.model('JobsModel', JobsSchema)
